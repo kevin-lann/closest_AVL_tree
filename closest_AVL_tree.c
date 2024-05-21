@@ -90,17 +90,17 @@ void updateClosestPair(closest_AVL_Node* node) {
     *nodeLower = rightLower;
     smallest_diff = rightUpper - rightLower;
   }
-  // 3. Check difference of node's key and left child's key (if it exists)
-  if (node->left && node->key - node->left->key < smallest_diff) {
+  // 3. Check difference of node's key and left child's max (if it exists)
+  if (node->left && node->key - node->left->max < smallest_diff) {
     *nodeUpper = node->key;
-    *nodeLower = node->left->key;
-    smallest_diff = node->key - node->left->key;
+    *nodeLower = node->left->max;
+    smallest_diff = node->key - node->left->max;
   }
-  // 4. Check difference of node's key and right child's key (if it exists)
-  if (node->right && node->right->key - node->key < smallest_diff) {
-    *nodeUpper = node->right->key;
+  // 4. Check difference of node's key and right child's min (if it exists)
+  if (node->right && node->right->min - node->key < smallest_diff) {
+    *nodeUpper = node->right->min;
     *nodeLower = node->key;
-    smallest_diff = node->right->key - node->key;
+    smallest_diff = node->right->min - node->key;
   }
 }
 
@@ -118,24 +118,68 @@ int balanceFactor(closest_AVL_Node* node) {
  * closest_AVL tree rooted at 'node'.
  */
 // single rotations: right/clockwise
-closest_AVL_Node* rightRotation(closest_AVL_Node* node);
+closest_AVL_Node* rightRotation(closest_AVL_Node* node){
+  closest_AVL_Node* leftChild = node->left;
+  closest_AVL_Node* s = node->left->right;
+
+  node->left = s;
+  leftChild->right = node;
+  return leftChild;
+}
+
 // single rotations: left/counter-clockwise
-closest_AVL_Node* leftRotation(closest_AVL_Node* node);
+closest_AVL_Node* leftRotation(closest_AVL_Node* node) {
+  closest_AVL_Node* rightChild = node->left;
+  closest_AVL_Node* s = node->right->left;
+
+  node->right = s;
+  rightChild->left = node;
+  return leftChild;
+}
+
 // double rotation: right/clockwise then left/counter-clockwise
 closest_AVL_Node* rightLeftRotation(closest_AVL_Node* node);
+
 // double rotation: left/counter-clockwise then right/clockwise
 closest_AVL_Node* leftRightRotation(closest_AVL_Node* node);
+
+/*
+ * Rebalances the tree rooted at 'node' and returns the rebalanced node.
+ */
+closest_AVL_Node* rebalance(closest_AVL_Node* node) {
+  // left heavy
+  if (height(node->left) - height(node->right) > 1) {
+    closest_AVL_Node* x = node->left;
+    if (height(x->left) >= height(x->right)) {
+      node = rightRotation(node);
+    }
+    else {
+      node = leftRightRotation(node);
+    }
+  }
+  // right heavy
+  else if (height(node->right) - height(node->left) > 1) {
+    closest_AVL_Node* x = node->right;
+    if (height(x->right) >= height(x->left)) {
+      node = leftRotation(node);
+    }
+    else {
+      node = rightLeftRotation(node);
+    }
+  }
+}
+
 
 /*
  * Returns the successor node of 'node'.
  */
 closest_AVL_Node* successor(closest_AVL_Node* node) {
-  if(node->right) 
+  if (node->right) 
     node = node->right;
   else {
     return NULL;
   }
-  while(node->left) {
+  while (node->left) {
     node = node->left;
   }
   return node;
@@ -147,7 +191,9 @@ closest_AVL_Node* successor(closest_AVL_Node* node) {
  */
 closest_AVL_Node* createNode(int key, void* value) {
   closest_AVL_Node* node = (closest_AVL_Node*)malloc(sizeof(closest_AVL_Node));
-  if (!node) return NULL;
+  if (!node) {
+    return NULL;
+  }
 
   node->key = key;
   node->value = value;
@@ -210,12 +256,38 @@ void deleteTree(closest_AVL_Node* node)
 
 closest_AVL_Node* search(closest_AVL_Node* node, int key)
 {
-  return NULL;
+  if (!node || node->key = key) {
+    return node;
+  }
+  if (node->key < key) {
+    return search(node->right, key);
+  }
+  else {
+    return search(node->left, key);
+  }
 }
 
 closest_AVL_Node* insert(closest_AVL_Node* node, int key, void* value)
 {
-  return NULL;
+  closest_AVL_Node* newNode = createNode(key, value);
+  
+  if(!node) {
+    return newNode;
+  }
+
+  if (key < node->key) {
+    node->left = insert(node->left, key, value);
+  }
+  else if (key > node->key) {
+    node->right = insert(node->right, key, value)
+  }
+
+  node = rebalance(node);
+  // update heights
+  // update min/max
+  // update closest pairs
+
+  return node;
 }
 
 closest_AVL_Node* delete(closest_AVL_Node* node, int key)
