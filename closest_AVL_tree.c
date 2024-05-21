@@ -5,7 +5,6 @@
  */
 
 #include "closest_AVL_tree.h"
-#include <math.h>
 
 /*************************************************************************
  ** Suggested helper functions -- part of starter code
@@ -21,7 +20,7 @@ int height(closest_AVL_Node* node) {
 }
 
 /*
- * Returns the min value in the tree rooted at node 'node'.
+ * Returns the min key in the tree rooted at node 'node'.
  * Returns INT_MAX if 'node' is NULL.  Note: this should be an O(1) operation.
  */
 int getMin(closest_AVL_Node* node) {
@@ -29,7 +28,7 @@ int getMin(closest_AVL_Node* node) {
 }
 
 /*
- * Returns the max value in the tree rooted at node 'node'.
+ * Returns the max key in the tree rooted at node 'node'.
  * Returns INT_MIN if 'node' is NULL.  Note: this should be an O(1) operation.
  */
 int getMax(closest_AVL_Node* node) {
@@ -45,7 +44,7 @@ void updateHeight(closest_AVL_Node* node) {
 }
 
 /*
- * Updates the min value of the tree rooted at node 'node' based on the
+ * Updates the min key of the tree rooted at node 'node' based on the
  * min value of its children. Note: this should be an O(1) operation.
  */
 void updateMin(closest_AVL_Node* node) {
@@ -55,7 +54,7 @@ void updateMin(closest_AVL_Node* node) {
 }
 
 /*
- * Updates the max value of the tree rooted at node 'node' based on the
+ * Updates the max key of the tree rooted at node 'node' based on the
  * max value of its children. Note: this should be an O(1) operation.
  */
 void updateMax(closest_AVL_Node* node) {
@@ -69,30 +68,39 @@ void updateMax(closest_AVL_Node* node) {
  * values from its children. Note: this should be an O(1) operation.
  */
 void updateClosestPair(closest_AVL_Node* node) {
-  int left_diff = node->left->pair->upper - node->left->pair->lower;
-  int right_diff = node->right->pair->upper - node->right->pair->lower;
-  int node_diff_left = node->key - node->left->key;
-  int node_diff_right = node->right->key - node.key;
-
-  // Find minimum of the above 4 values and update node->pair accordingly
-  
-  node->pair->upper = node->left->pair->upper;
-  node->pair->lower = node->left->pair->lower;
-  int cur_diff = left_diff
-
-  if (right_diff < cur_diff) {
-    node->pair->upper = node->right->pair->upper;
-    node->pair->lower = node->right->pair->lower;
-    cur_diff = right_diff
+  if (!node->left && !node->right) {
+    node->closest_pair = NULL;
   }
-  if (node_diff_left < cur_diff) {
-    node->pair->upper = node->key;
-    node->pair->lower = node->left->key;
-    cur_diff = node_diff_left
+
+  int smallest_diff = INT_MAX;
+  int leftUpper = node->left->closest_pair->upper, leftLower = node->left->closest_pair->lower;
+  int rightUpper = node->right->closest_pair->upper, rightLower = node->right->closest_pair->lower;
+  int *nodeUpper = &(node->closest_pair->upper), *nodeLower = &(node->closest_pair->lower);
+
+  // -- Find minimum of following 4 values and update node->pair accordingly --
+  // 1. closest_pair of left subtree (if it exists)
+  if(node->left) {
+    *nodeUpper = leftUpper;
+    *nodeLower = leftLower;
+    smallest_diff = leftUpper - leftLower;
   }
-  if (node_diff_right < cur_diff) {
-    node->pair->upper = node->right->key;
-    node->pair->lower = node->key;
+  // 2. closest_pair of right subtree (if it exists)
+  if (node->right && rightUpper - rightLower < smallest_diff) {
+    *nodeUpper = rightUpper;
+    *nodeLower = rightLower;
+    smallest_diff = rightUpper - rightLower;
+  }
+  // 3. Check difference of node's key and left child's key (if it exists)
+  if (node->left && node->key - node->left->key < smallest_diff) {
+    *nodeUpper = node->key;
+    *nodeLower = node->left->key;
+    smallest_diff = node->key - node->left->key;
+  }
+  // 4. Check difference of node's key and right child's key (if it exists)
+  if (node->right && node->right->key - node->key < smallest_diff) {
+    *nodeUpper = node->right->key;
+    *nodeLower = node->key;
+    smallest_diff = node->right->key - node->key;
   }
 }
 
@@ -101,7 +109,9 @@ void updateClosestPair(closest_AVL_Node* node) {
  * subtree) of node 'node'. Returns 0 if node is NULL.  Note: this should be
  * an O(1) operation.
  */
-int balanceFactor(closest_AVL_Node* node);
+int balanceFactor(closest_AVL_Node* node) {
+  return node ? height(node->left) - height(node->right) : 0;
+}
 
 /*
  * Returns the result of performing the corresponding rotation in the
@@ -119,13 +129,37 @@ closest_AVL_Node* leftRightRotation(closest_AVL_Node* node);
 /*
  * Returns the successor node of 'node'.
  */
-closest_AVL_Node* successor(closest_AVL_Node* node);
+closest_AVL_Node* successor(closest_AVL_Node* node) {
+  if(node->right) 
+    node = node->right;
+  else {
+    return NULL;
+  }
+  while(node->left) {
+    node = node->left;
+  }
+  return node;
+}
 
 /*
  * Creates and returns a closest_AVL tree node with key 'key', value 'value',
- * height 1, min and max value 'value', and left, right and closest_pair NULL.
+ * height 1, min and max value 'key', and left, right and closest_pair NULL.
  */
-closest_AVL_Node* createNode(int key, void* value);
+closest_AVL_Node* createNode(int key, void* value) {
+  closest_AVL_Node* node = (closest_AVL_Node*)malloc(sizeof(closest_AVL_Node));
+  if (!node) return NULL;
+
+  node->key = key;
+  node->value = value;
+  node->height = 1;
+  node->min = key;
+  node->max = key;
+  node->left = NULL;
+  node->right = NULL;
+  node->closest_pair = NULL;
+
+  return node;
+}
 
 /*************************************************************************
  ** Provided functions
@@ -196,5 +230,5 @@ closest_AVL_Node* delete(closest_AVL_Node* node, int key)
 
 pair* getClosestPair(closest_AVL_Node* node)
 {
-  return NULL;
+  return node->closest_pair ? node->closest_pair : NULL;
 }

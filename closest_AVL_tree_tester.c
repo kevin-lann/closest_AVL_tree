@@ -62,7 +62,8 @@ closest_AVL_Node* createTree(FILE* f)
 }
 
 void customTest(closest_AVL_Node* root) {
-  printf("Height of root: %d\n", height(root));
+  int a = 5, b = 6;
+  int* pa=&a, *pb=&b;
 }
 
 void testTree(closest_AVL_Node* root)
