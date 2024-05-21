@@ -1,0 +1,41 @@
+Author: Akshay Arun Bapat.
+
+This sample session is a reminder of some conventions in this course that otherwise could be
+arbitrary, but, if we are all on the same page, automarking will work much better for
+everyone. Namely:
+
+* Base cases for height and size fields. (See tree dumps below.)
+* When deleting a key in the thick middle, replace by successor.
+
+So, below we will preload keys from sample_input.txt, then do a delete and some rank queries to show
+you the model answers that your solution should match.
+
+This sample is, of course, just for disambiguation, and is not sufficient testing. It is part of
+your job to do your own testing. You are welcome to come to office hours and show us your test
+inputs and outputs for feedback.
+
+
+$ ./run sample_input.txt
+read 10
+** The tree is now:
+ 10 [1 / 10 / 10 / NULL]
+**
+
+[... eight more reads later ...]
+
+read 55
+** The tree is now:
+    55 [1 / 55 / 55 / NULL]
+   46 [2 / 46 / 55 / (46, 55)]
+  38 [3 / 20 / 55 / (20, 25)]
+    31 [1 / 31 / 31 / NULL]
+   25 [2 / 20 / 31 / (20, 25)]
+    20 [1 / 20 / 20 / NULL]
+ 16 [4 / 10 / 55 / (10, 11)]
+   13 [1 / 13 / 13 / NULL]
+  11 [2 / 10 / 13 / (10, 11)]
+   10 [1 / 10 / 10 / NULL]
+**
+Choose a command: (s)earch, (i)nsert, (d)elete, (c)losest_pair, (q)uit
+q
+Quit selected. Goodbye!
