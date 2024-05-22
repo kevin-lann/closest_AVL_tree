@@ -40,7 +40,8 @@ int getMax(closest_AVL_Node* node) {
  * of its children. Note: this should be an O(1) operation.
  */
 void updateHeight(closest_AVL_Node* node) {
-  node->height = height(node->left) - height(node->right);
+  int h_left = height(node->left), h_right = height(node->right);
+  node->height = 1 + (h_left > h_right ? h_left : h_right);
 }
 
 /*
@@ -49,8 +50,7 @@ void updateHeight(closest_AVL_Node* node) {
  */
 void updateMin(closest_AVL_Node* node) {
   int left = getMin(node->left);
-  int right = getMin(node->right);
-  node->min = left < right ? left : right;
+  node->min = left < node->key ? left : node->key;
 }
 
 /*
@@ -58,9 +58,8 @@ void updateMin(closest_AVL_Node* node) {
  * max value of its children. Note: this should be an O(1) operation.
  */
 void updateMax(closest_AVL_Node* node) {
-  int left = getMax(node->left);
   int right = getMax(node->right);
-  node->min = left > right ? left : right;
+  node->min = node->key > right ? node->key : right;
 }
 
 /*
@@ -124,33 +123,47 @@ closest_AVL_Node* rightRotation(closest_AVL_Node* node){
 
   node->left = s;
   leftChild->right = node;
+
+  updateHeight(node);
+  updateHeight(leftChild);
+
   return leftChild;
 }
 
 // single rotations: left/counter-clockwise
 closest_AVL_Node* leftRotation(closest_AVL_Node* node) {
-  closest_AVL_Node* rightChild = node->left;
+  closest_AVL_Node* rightChild = node->right;
   closest_AVL_Node* s = node->right->left;
 
   node->right = s;
   rightChild->left = node;
-  return leftChild;
+
+  updateHeight(node);
+  updateHeight(rightChild);
+
+  return rightChild;
 }
 
 // double rotation: right/clockwise then left/counter-clockwise
-closest_AVL_Node* rightLeftRotation(closest_AVL_Node* node);
+closest_AVL_Node* rightLeftRotation(closest_AVL_Node* node) {
+  node->right = rightRotation(node->right);
+  return leftRotation(node);
+}
 
 // double rotation: left/counter-clockwise then right/clockwise
-closest_AVL_Node* leftRightRotation(closest_AVL_Node* node);
+closest_AVL_Node* leftRightRotation(closest_AVL_Node* node) {
+  node->left = leftRotation(node->left);
+  return rightRotation(node);
+}
 
 /*
  * Rebalances the tree rooted at 'node' and returns the rebalanced node.
  */
 closest_AVL_Node* rebalance(closest_AVL_Node* node) {
   // left heavy
-  if (height(node->left) - height(node->right) > 1) {
+  if (balanceFactor(node) > 1) {
     closest_AVL_Node* x = node->left;
-    if (height(x->left) >= height(x->right)) {
+    if (balanceFactor(x) >= 0) {
       node = rightRotation(node);
     }
     else {
@@ -158,24 +171,25 @@ closest_AVL_Node* rebalance(closest_AVL_Node* node) {
     }
   }
   // right heavy
-  else if (height(node->right) - height(node->left) > 1) {
+  else if (balanceFactor(node) > 1) {
     closest_AVL_Node* x = node->right;
-    if (height(x->right) >= height(x->left)) {
+    if (balanceFactor(x) <= 0) {
       node = leftRotation(node);
     }
     else {
       node = rightLeftRotation(node);
     }
   }
+  return node;
 }
-
 
 /*
  * Returns the successor node of 'node'.
  */
 closest_AVL_Node* successor(closest_AVL_Node* node) {
-  if (node->right) 
+  if (node->right) {
     node = node->right;
+  }
   else {
     return NULL;
   }
@@ -256,7 +270,7 @@ void deleteTree(closest_AVL_Node* node)
 
 closest_AVL_Node* search(closest_AVL_Node* node, int key)
 {
-  if (!node || node->key = key) {
+  if (!node || node->key == key) {
     return node;
   }
   if (node->key < key) {
@@ -269,24 +283,23 @@ closest_AVL_Node* search(closest_AVL_Node* node, int key)
 
 closest_AVL_Node* insert(closest_AVL_Node* node, int key, void* value)
 {
-  closest_AVL_Node* newNode = createNode(key, value);
-  
+  // insertion
   if(!node) {
+    closest_AVL_Node* newNode = createNode(key, value);
     return newNode;
   }
-
   if (key < node->key) {
     node->left = insert(node->left, key, value);
   }
   else if (key > node->key) {
-    node->right = insert(node->right, key, value)
+    node->right = insert(node->right, key, value);
   }
+  node->height++;
 
   node = rebalance(node);
-  // update heights
   // update min/max
   // update closest pairs
-
+  
   return node;
 }
 
