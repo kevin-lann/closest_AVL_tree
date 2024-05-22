@@ -72,9 +72,37 @@ void updateClosestPair(closest_AVL_Node* node) {
   }
 
   int smallest_diff = INT_MAX;
-  int leftUpper = node->left->closest_pair->upper, leftLower = node->left->closest_pair->lower;
-  int rightUpper = node->right->closest_pair->upper, rightLower = node->right->closest_pair->lower;
-  int *nodeUpper = &(node->closest_pair->upper), *nodeLower = &(node->closest_pair->lower);
+  int leftUpper, leftLower, rightUpper, rightLower;
+  int *nodeUpper, *nodeLower;
+
+  // check for closest pair existence
+  if(!node->closest_pair) {
+    node->closest_pair = (pair*)malloc(sizeof(pair));
+  }
+  nodeUpper = &(node->closest_pair->upper);
+  nodeLower = &(node->closest_pair->lower);
+
+  if (node->left) {
+    if (node->left->closest_pair) {
+      leftUpper = node->left->closest_pair->upper;
+      leftLower = node->left->closest_pair->lower;
+    }
+    else {
+      leftUpper = node->left->key;
+      leftLower = node->left->key;
+    }
+  }
+  if (node->right) {
+    if (node->right->closest_pair) {
+      rightUpper = node->right->closest_pair->upper;
+      rightLower = node->right->closest_pair->lower;
+    }
+    else {
+      rightUpper = node->right->key;
+      rightLower = node->right->key;
+    }
+  }
+  
 
   // -- Find minimum of following 4 values and update node->pair accordingly --
   // 1. closest_pair of left subtree (if it exists)
@@ -294,11 +322,16 @@ closest_AVL_Node* insert(closest_AVL_Node* node, int key, void* value)
   else if (key > node->key) {
     node->right = insert(node->right, key, value);
   }
-  node->height++;
+  // update height
+  updateHeight(node);
 
   node = rebalance(node);
+  
   // update min/max
+  updateMin(node);
+  updateMax(node);
   // update closest pairs
+  updateClosestPair(node);
   
   return node;
 }
