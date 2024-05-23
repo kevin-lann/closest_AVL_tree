@@ -88,8 +88,8 @@ void updateClosestPair(closest_AVL_Node* node) {
       leftLower = node->left->closest_pair->lower;
     }
     else {
-      leftUpper = node->left->key;
-      leftLower = node->left->key;
+      leftUpper = 0;
+      leftLower = 0;
     }
   }
   if (node->right) {
@@ -98,27 +98,27 @@ void updateClosestPair(closest_AVL_Node* node) {
       rightLower = node->right->closest_pair->lower;
     }
     else {
-      rightUpper = node->right->key;
-      rightLower = node->right->key;
+      rightUpper = 0;
+      rightLower = 0;
     }
   }
   
 
   // -- Find minimum of following 4 values and update node->pair accordingly --
   // 1. closest_pair of left subtree (if it exists)
-  if(node->left) {
+  if(node->left && leftUpper != leftLower) {
     *nodeUpper = leftUpper;
     *nodeLower = leftLower;
     smallest_diff = leftUpper - leftLower;
   }
   // 2. closest_pair of right subtree (if it exists)
-  if (node->right && rightUpper - rightLower < smallest_diff) {
+  if (node->right && rightUpper != rightLower && rightUpper - rightLower < smallest_diff) {
     *nodeUpper = rightUpper;
     *nodeLower = rightLower;
     smallest_diff = rightUpper - rightLower;
   }
   // 3. Check difference of node's key and left child's max (if it exists)
-  if (node->left && node->key - node->left->max < smallest_diff) {
+  if (node->left && leftUpper != leftLower && node->key - node->left->max < smallest_diff) {
     *nodeUpper = node->key;
     *nodeLower = node->left->max;
     smallest_diff = node->key - node->left->max;
