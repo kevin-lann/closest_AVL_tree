@@ -343,10 +343,8 @@ closest_AVL_Node* insert(closest_AVL_Node* node, int key, void* value)
 
   node = rebalance(node);
   
-  // update min/max
   updateMin(node);
   updateMax(node);
-  // update closest pairs
   updateClosestPair(node);
   
   return node;
@@ -354,7 +352,48 @@ closest_AVL_Node* insert(closest_AVL_Node* node, int key, void* value)
 
 closest_AVL_Node* delete(closest_AVL_Node* node, int key)
 {
-  return NULL;
+  if (!node) {
+    return node;
+  }
+
+  if (key < node->key) {
+    node->left = delete(node->left, key);
+  }
+  else {
+    node->right = delete(node->right, key);
+  }
+  
+  if (key == node->key) {
+    // 0 or 1 child
+    if (!node->left) {
+      closest_AVL_Node* tmp = node->right;
+      free(node);
+      return tmp;
+    }
+    else if (!node->right) {
+      closest_AVL_Node* tmp = node->left;
+      free(node);
+      return tmp;
+    }
+
+    // 2 children
+    closest_AVL_Node* suc = successor(node);
+    int sucKey = suc->key;
+    void *sucVal = suc->value;
+    node->right = delete(node->right, suc->key);
+    node->key = sucKey;
+    node->value = sucVal;
+  }
+
+  updateHeight(node);
+
+  node = rebalance(node);
+
+  updateMin(node);
+  updateMax(node);
+  updateClosestPair(node);
+  
+  return node;
 }
 
 /*************************************************************************
