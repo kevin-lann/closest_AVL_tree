@@ -59,7 +59,7 @@ void updateMin(closest_AVL_Node* node) {
  */
 void updateMax(closest_AVL_Node* node) {
   int right = getMax(node->right);
-  node->min = node->key > right ? node->key : right;
+  node->max = node->key > right ? node->key : right;
 }
 
 /*
