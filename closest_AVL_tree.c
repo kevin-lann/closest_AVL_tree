@@ -118,7 +118,7 @@ void updateClosestPair(closest_AVL_Node* node) {
     smallest_diff = rightUpper - rightLower;
   }
   // 3. Check difference of node's key and left child's max (if it exists)
-  if (node->left && leftUpper != leftLower && node->key - node->left->max < smallest_diff) {
+  if (node->left && node->key - node->left->max < smallest_diff) {
     *nodeUpper = node->key;
     *nodeLower = node->left->max;
     smallest_diff = node->key - node->left->max;
@@ -153,7 +153,15 @@ closest_AVL_Node* rightRotation(closest_AVL_Node* node){
   leftChild->right = node;
 
   updateHeight(node);
+  updateMin(node);
+  updateMax(node);
+
   updateHeight(leftChild);
+  updateMin(leftChild);
+  updateMax(leftChild);
+
+  updateClosestPair(node);
+  updateClosestPair(leftChild);
 
   return leftChild;
 }
@@ -167,7 +175,15 @@ closest_AVL_Node* leftRotation(closest_AVL_Node* node) {
   rightChild->left = node;
 
   updateHeight(node);
+  updateMin(node);
+  updateMax(node);
+
   updateHeight(rightChild);
+  updateMin(rightChild);
+  updateMax(rightChild);
+
+  updateClosestPair(node);
+  updateClosestPair(rightChild);
 
   return rightChild;
 }
