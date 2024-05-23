@@ -199,7 +199,7 @@ closest_AVL_Node* rebalance(closest_AVL_Node* node) {
     }
   }
   // right heavy
-  else if (balanceFactor(node) > 1) {
+  else if (balanceFactor(node) < -1) {
     closest_AVL_Node* x = node->right;
     if (balanceFactor(x) <= 0) {
       node = leftRotation(node);
