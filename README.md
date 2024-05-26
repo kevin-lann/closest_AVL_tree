@@ -1,2 +1,2 @@
-# Closest AVL T
+# Closest AVL Tr
 Implementation of closest-pair AVL Tree.
