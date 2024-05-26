@@ -375,14 +375,15 @@ closest_AVL_Node* delete(closest_AVL_Node* node, int key)
       free(node);
       return tmp;
     }
-
     // 2 children
-    closest_AVL_Node* suc = successor(node);
-    int sucKey = suc->key;
-    void *sucVal = suc->value;
-    node->right = delete(node->right, suc->key);
-    node->key = sucKey;
-    node->value = sucVal;
+    else {
+      closest_AVL_Node* suc = successor(node);
+      int sucKey = suc->key;
+      void *sucVal = suc->value;
+      node->right = delete(node->right, suc->key);
+      node->key = sucKey;
+      node->value = sucVal;
+    }
   }
 
   updateHeight(node);
