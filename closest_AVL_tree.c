@@ -67,6 +67,7 @@ void updateMax(closest_AVL_Node* node) {
  * values from its children. Note: this should be an O(1) operation.
  */
 void updateClosestPair(closest_AVL_Node* node) {
+
   if (!node->left && !node->right) {
     node->closest_pair = NULL;
   }
@@ -364,12 +365,18 @@ closest_AVL_Node* delete(closest_AVL_Node* node, int key)
   }
   
   if (key == node->key) {
-    // 0 or 1 child
+    // no children
+    if (!node->left && !node->right) {
+      free(node);
+      return NULL;
+    }
+    // 1 child (left)
     if (!node->left) {
       closest_AVL_Node* tmp = node->right;
       free(node);
       return tmp;
     }
+    // 1 child (right)
     else if (!node->right) {
       closest_AVL_Node* tmp = node->left;
       free(node);
