@@ -367,18 +367,21 @@ closest_AVL_Node* delete(closest_AVL_Node* node, int key)
   if (key == node->key) {
     // no children
     if (!node->left && !node->right) {
+      free(node->closest_pair);
       free(node);
       return NULL;
     }
     // 1 child (left)
     if (!node->left) {
       closest_AVL_Node* tmp = node->right;
+      free(node->closest_pair);
       free(node);
       return tmp;
     }
     // 1 child (right)
     else if (!node->right) {
       closest_AVL_Node* tmp = node->left;
+      free(node->closest_pair);
       free(node);
       return tmp;
     }
