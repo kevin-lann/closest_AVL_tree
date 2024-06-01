@@ -40,7 +40,8 @@ int getMax(closest_AVL_Node* node) {
  * of its children. Note: this should be an O(1) operation.
  */
 void updateHeight(closest_AVL_Node* node) {
-  int h_left = height(node->left), h_right = height(node->right);
+  int h_left = height(node->left);
+  int h_right = height(node->right);
   node->height = 1 + (h_left > h_right ? h_left : h_right);
 }
 
@@ -70,6 +71,7 @@ void updateClosestPair(closest_AVL_Node* node) {
 
   if (!node->left && !node->right) {
     node->closest_pair = NULL;
+    return;
   }
 
   int smallest_diff = INT_MAX;
@@ -339,7 +341,7 @@ closest_AVL_Node* insert(closest_AVL_Node* node, int key, void* value)
   else if (key > node->key) {
     node->right = insert(node->right, key, value);
   }
-  // update height
+
   updateHeight(node);
 
   node = rebalance(node);
@@ -414,5 +416,5 @@ closest_AVL_Node* delete(closest_AVL_Node* node, int key)
 
 pair* getClosestPair(closest_AVL_Node* node)
 {
-  return node->closest_pair ? node->closest_pair : NULL;
+  return node->closest_pair;
 }
