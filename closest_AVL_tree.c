@@ -416,5 +416,5 @@ closest_AVL_Node* delete(closest_AVL_Node* node, int key)
 
 pair* getClosestPair(closest_AVL_Node* node)
 {
-  return node->closest_pair;
+  return node ? node->closest_pair : NULL;
 }
